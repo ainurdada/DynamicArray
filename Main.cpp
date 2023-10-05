@@ -1,7 +1,8 @@
-#include <iostream>
-
+#include "DynamicArray.cpp"
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    Array<int> arr;
+    arr.Debug();
+    
 }
