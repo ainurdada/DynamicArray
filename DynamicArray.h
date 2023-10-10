@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
 #include <stdlib.h>
+#include <iterator>
+#include <vector>
 
 template<typename T>
 class Array final {
@@ -11,6 +13,13 @@ public:
 
 	int insert(const T& value);
 	int insert(int index, const T& value);
+	void remove(int index);
+	int size() const;
+	Iterator iterator();
+	ConstIterarto iterator() const;
+
+	const T& operator[](int index) const;
+	T& operator[](int index);
 
     void Debug();
 
@@ -59,7 +68,7 @@ int Array<T>::insert(int index, const T& value) {
 			delete (old_buf[i]);
 		}
 
-		buf_[index] = move(value);
+		new (buf_[index]) T(value);
 
 		for (int i = index + 1; i < length_; i++) {
 			buf_[i] = move(old_buf[i]);
@@ -72,8 +81,32 @@ int Array<T>::insert(int index, const T& value) {
 		for (int i = length_; i > index; i--) {
 			buf_[i] = move(buf_[i - 1]);
 		}
-		buf_[index] = move(value);
+		new (buf_[index]) T(value);
 	}
+}
+template<typename T>
+void Array<T>::remove(int index) {
+	for (int i = index; i < length_ - 1; i++) {
+		buf_[i] = move(buf_[i + 1]);
+	}
+	length_--;
+}
+template<typename T>
+int Array<T>::size() const {
+	return length_;
+}
+template<typename T>
+Iterator Array<T>::iterator() {
+}
+
+
+template<typename T>
+const T& Array<T>::operator[](int index) const {
+	return buf_[index];
+}
+template<typename T>
+T& Array<T>::operator[](int index) {
+	return buf_[index];
 }
 
 template<typename T>
