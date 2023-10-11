@@ -7,8 +7,24 @@
 template<typename T>
 class Array final {
 public:
-    Array();
-    Array(int capacity);
+	class Iterator {
+	public:
+		Iterator(Array<T>* arr)
+			: index_(0),
+			arr_(arr)
+		{};
+
+		const T& get() const;
+		void set(const T& value);
+		void next();
+		bool hasNext() const;
+	private:
+		int index_;
+		Array<T>* arr_;
+	};
+
+	Array();
+	Array(int capacity);
 	~Array();
 
 	int insert(const T& value);
@@ -16,20 +32,20 @@ public:
 	void remove(int index);
 	int size() const;
 	Iterator iterator();
-	ConstIterarto iterator() const;
+	//ConstIterarto iterator() const;
 
 	const T& operator[](int index) const;
 	T& operator[](int index);
 
-    void Debug();
+	void Debug();
 
 private:
 	void deleteBuf();
 private:
-    T* buf_;
-    int capacity_;
+	T* buf_;
+	int capacity_;
 	int length_;
-	const float kExp = 1.6;
+	const float kExp = 1.6f;
 };
 
 using namespace std;
@@ -65,14 +81,15 @@ int Array<T>::insert(int index, const T& value) {
 
 		for (int i = 0; i < index; i++) {
 			buf_[i] = move(old_buf[i]);
-			delete (old_buf[i]);
+			if (old_buf[i])
+				delete (old_buf + i);
 		}
 
-		new (buf_[index]) T(value);
+		buf_[index] = value;
 
 		for (int i = index + 1; i < length_; i++) {
 			buf_[i] = move(old_buf[i]);
-			delete (old_buf[i]);
+			delete (old_buf + i);
 		}
 	}
 
@@ -81,8 +98,9 @@ int Array<T>::insert(int index, const T& value) {
 		for (int i = length_; i > index; i--) {
 			buf_[i] = move(buf_[i - 1]);
 		}
-		new (buf_[index]) T(value);
+		buf_[index] = value;
 	}
+	return index;
 }
 template<typename T>
 void Array<T>::remove(int index) {
@@ -96,7 +114,8 @@ int Array<T>::size() const {
 	return length_;
 }
 template<typename T>
-Iterator Array<T>::iterator() {
+typename Array<T>::Iterator Array<T>::iterator() {
+	return *(new Iterator{ this });
 }
 
 
@@ -121,4 +140,23 @@ template<typename T>
 void Array<T>::Debug() {
 	std::cout << capacity_ << std::endl;
 	std::cout << sizeof(T) * capacity_ << std::endl;
+}
+
+
+template<typename T>
+const T& Array<T>::Iterator::get() const {
+	return arr_->buf_[index_];
+}
+template<typename T>
+void Array<T>::Iterator::set(const T& value) {
+	arr_->buf_[index_](value);
+}
+template<typename T>
+void Array<T>::Iterator::next() {
+	index_++;
+}
+template<typename T>
+bool Array<T>::Iterator::hasNext() const {
+	if (index_ < arr_->length_ - 1) return true;
+	else return false;
 }
