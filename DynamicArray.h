@@ -41,6 +41,7 @@ public:
 
 private:
 	void deleteBuf();
+	void swapArray(Array<T>& t1, Array<T>& t2);
 private:
 	T* buf_;
 	int capacity_;
@@ -71,26 +72,30 @@ template<typename T>
 int Array<T>::insert(const T& value) {
 	return insert(length_, value);
 }
+
+template<typename T>
+void Array<T>::swapArray(Array<T>& t1, Array<T>& t2) {
+	swap(t1.buf_, t2.buf_);
+	swap(t1.capacity_, t2.capacity_);
+	swap(t1.length_, t2.length_);
+}
 template<typename T>
 int Array<T>::insert(int index, const T& value) {
 	length_++;
 	if (length_ > capacity_) {
-		T* old_buf = buf_;
-		capacity_ *= kExp;
-		buf_ = (T*)malloc(capacity_ * sizeof(T));
+		Array<T> temp{ (int)(capacity_ * kExp) };
 
 		for (int i = 0; i < index; i++) {
-			buf_[i] = move(old_buf[i]);
-			if (old_buf[i])
-				delete (old_buf + i);
+			temp.buf_[i] = move(this->buf_[i]);
 		}
 
-		buf_[index] = value;
+		temp.buf_[index] = value;
 
 		for (int i = index + 1; i < length_; i++) {
-			buf_[i] = move(old_buf[i]);
-			delete (old_buf + i);
+			temp.buf_[i] = move(this->buf_[i]);
 		}
+
+		swapArray(*this, temp);
 	}
 
 	else
@@ -131,7 +136,8 @@ T& Array<T>::operator[](int index) {
 template<typename T>
 void Array<T>::deleteBuf() {
 	for (int i = 0; i < length_; i++) {
-		delete (buf_ + 1);
+		//delete (buf_ + i);
+		buf_[i].~T();
 	}
 	free(buf_);
 }
