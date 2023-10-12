@@ -70,10 +70,8 @@ Array<T>::~Array() {
 template<typename T>
 void Array<T>::deleteBuf() {
 	for (int i = 0; i < length_; i++) {
-		//delete (buf_ + i);
 		buf_[i].~T();
 	}
-	//free(buf_);
 }
 
 template<typename T>
