@@ -81,9 +81,9 @@ void Array<T>::swapArray(Array<T>& t1, Array<T>& t2) {
 }
 template<typename T>
 int Array<T>::insert(int index, const T& value) {
-	length_++;
-	if (length_ > capacity_) {
+	if (length_ == capacity_) {
 		Array<T> temp{ (int)(capacity_ * kExp) };
+		temp.length_ = length_ + 1;
 
 		for (int i = 0; i < index; i++) {
 			temp.buf_[i] = move(this->buf_[i]);
@@ -100,6 +100,7 @@ int Array<T>::insert(int index, const T& value) {
 
 	else
 	{
+		length_++;
 		for (int i = length_; i > index; i--) {
 			buf_[i] = move(buf_[i - 1]);
 		}
@@ -139,7 +140,7 @@ void Array<T>::deleteBuf() {
 		//delete (buf_ + i);
 		buf_[i].~T();
 	}
-	free(buf_);
+	//free(buf_);
 }
 
 template<typename T>

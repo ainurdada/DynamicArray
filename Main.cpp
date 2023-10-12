@@ -2,6 +2,7 @@
 
 int main()
 {
+    int t;
     Array<int> a;
     for (int i = 0; i < 10; ++i)
         a.insert(i + 1);
