@@ -9,9 +9,10 @@ class Array final {
 public:
 	class Iterator {
 	public:
-		Iterator(Array<T>* arr)
-			: index_(0),
-			arr_(arr)
+		Iterator(Array<T>* arr, int delta)
+			: arr_(arr),
+			index_(0),
+			delta_(delta)
 		{};
 
 		const T& get() const;
@@ -19,8 +20,9 @@ public:
 		void next();
 		bool hasNext() const;
 	private:
-		int index_;
 		Array<T>* arr_;
+		int index_;
+		int delta_;
 	};
 
 	Array();
@@ -32,13 +34,11 @@ public:
 	void remove(int index);
 	int size() const;
 	Iterator iterator();
+	Iterator reverseIterator();
 	//ConstIterarto iterator() const;
 
 	const T& operator[](int index) const;
 	T& operator[](int index);
-
-	void Debug();
-
 private:
 	void deleteBuf();
 	void swapArray(Array<T>& t1, Array<T>& t2);
@@ -67,10 +67,13 @@ template<typename T>
 Array<T>::~Array() {
 	deleteBuf();
 }
-
 template<typename T>
-int Array<T>::insert(const T& value) {
-	return insert(length_, value);
+void Array<T>::deleteBuf() {
+	for (int i = 0; i < length_; i++) {
+		//delete (buf_ + i);
+		buf_[i].~T();
+	}
+	//free(buf_);
 }
 
 template<typename T>
@@ -78,6 +81,10 @@ void Array<T>::swapArray(Array<T>& t1, Array<T>& t2) {
 	swap(t1.buf_, t2.buf_);
 	swap(t1.capacity_, t2.capacity_);
 	swap(t1.length_, t2.length_);
+}
+template<typename T>
+int Array<T>::insert(const T& value) {
+	return insert(length_, value);
 }
 template<typename T>
 int Array<T>::insert(int index, const T& value) {
@@ -121,9 +128,12 @@ int Array<T>::size() const {
 }
 template<typename T>
 typename Array<T>::Iterator Array<T>::iterator() {
-	return *(new Iterator{ this });
+	return *(new Iterator{ this, 1 });
 }
-
+template<typename T>
+typename Array<T>::Iterator Array<T>::reverseIterator() {
+	return *(new Iterator{ this, -1 });
+}
 
 template<typename T>
 const T& Array<T>::operator[](int index) const {
@@ -132,21 +142,6 @@ const T& Array<T>::operator[](int index) const {
 template<typename T>
 T& Array<T>::operator[](int index) {
 	return buf_[index];
-}
-
-template<typename T>
-void Array<T>::deleteBuf() {
-	for (int i = 0; i < length_; i++) {
-		//delete (buf_ + i);
-		buf_[i].~T();
-	}
-	//free(buf_);
-}
-
-template<typename T>
-void Array<T>::Debug() {
-	std::cout << capacity_ << std::endl;
-	std::cout << sizeof(T) * capacity_ << std::endl;
 }
 
 
@@ -160,10 +155,10 @@ void Array<T>::Iterator::set(const T& value) {
 }
 template<typename T>
 void Array<T>::Iterator::next() {
-	index_++;
+	index_ += delta_;
 }
 template<typename T>
 bool Array<T>::Iterator::hasNext() const {
-	if (index_ < arr_->length_ - 1) return true;
+	if (index_ + delta_ < arr_->length_ && index_ + delta_ >= 0) return true;
 	else return false;
 }
