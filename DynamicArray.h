@@ -1,8 +1,5 @@
 #pragma once
 #include <iostream>
-#include <stdlib.h>
-#include <iterator>
-#include <vector>
 
 template<typename T>
 class Array final {
@@ -26,11 +23,13 @@ public:
 	};
 
 	Array();
-	Array(int capacity);
+	explicit Array(int capacity);
 	~Array();
 
 	int insert(const T& value);
 	int insert(int index, const T& value);
+	int insert(T&& value);
+	int insert(int index, T&& value);
 	void remove(int index);
 	int size() const;
 	Iterator iterator();
@@ -39,9 +38,6 @@ public:
 
 	const T& operator[](int index) const;
 	T& operator[](int index);
-private:
-	void deleteBuf();
-	void swapArray(Array<T>& t1, Array<T>& t2);
 private:
 	T* buf_;
 	int capacity_;
@@ -65,21 +61,13 @@ Array<T>::Array(int capacity) {
 }
 template<typename T>
 Array<T>::~Array() {
-	deleteBuf();
-}
-template<typename T>
-void Array<T>::deleteBuf() {
 	for (int i = 0; i < length_; i++) {
 		buf_[i].~T();
 	}
+	free(buf_);
 }
 
-template<typename T>
-void Array<T>::swapArray(Array<T>& t1, Array<T>& t2) {
-	swap(t1.buf_, t2.buf_);
-	swap(t1.capacity_, t2.capacity_);
-	swap(t1.length_, t2.length_);
-}
+
 template<typename T>
 int Array<T>::insert(const T& value) {
 	return insert(length_, value);
@@ -87,38 +75,83 @@ int Array<T>::insert(const T& value) {
 template<typename T>
 int Array<T>::insert(int index, const T& value) {
 	if (length_ == capacity_) {
-		Array<T> temp{ (int)(capacity_ * kExp) };
-		temp.length_ = length_ + 1;
-
+		T* oldBuf = buf_;
+		capacity_ *= kExp;
+		length_ += 1;
+		buf_ = (T*)malloc(capacity_ * sizeof(T));
 		for (int i = 0; i < index; i++) {
-			temp.buf_[i] = move(this->buf_[i]);
+			new (buf_ + i) T(move(oldBuf[i]));
 		}
 
-		temp.buf_[index] = value;
+		new (buf_ + index) T(value);
 
 		for (int i = index + 1; i < length_; i++) {
-			temp.buf_[i] = move(this->buf_[i]);
+			new (buf_ + i) T(move(oldBuf[i - 1]));
 		}
 
-		swapArray(*this, temp);
+		for (int i = 0; i < length_ - 1; i++) {
+			oldBuf[i].~T();
+		}
 	}
 
 	else
 	{
-		length_++;
 		for (int i = length_; i > index; i--) {
-			buf_[i] = move(buf_[i - 1]);
+			new (buf_ + i) T(move(buf_[i - 1]));
+			buf_[i - 1].~T();
 		}
-		buf_[index] = value;
+		length_ += 1;
+		new (buf_ + index) T(value);
 	}
 	return index;
 }
 template<typename T>
-void Array<T>::remove(int index) {
-	for (int i = index; i < length_ - 1; i++) {
-		buf_[i] = move(buf_[i + 1]);
+int Array<T>::insert(T&& value) {
+	return insert(length_, value);
+}
+template<typename T>
+int Array<T>::insert(int index, T&& value) {
+	if (length_ == capacity_) {
+		T* oldBuf = buf_;
+		capacity_ *= kExp;
+		length_ += 1;
+		buf_ = (T*)malloc(capacity_ * sizeof(T));
+		for (int i = 0; i < index; i++) {
+			new (buf_ + i) T(move(oldBuf[i]));
+		}
+
+		new (buf_ + index) T(move(value));
+
+		for (int i = index + 1; i < length_; i++) {
+			new (buf_ + i) T(move(oldBuf[i - 1]));
+		}
+
+		for (int i = 0; i < length_ - 1; i++) {
+			oldBuf[i].~T();
+		}
 	}
-	length_--;
+
+	else
+	{
+		for (int i = length_; i > index; i--) {
+			new (buf_ + i) T(move(buf_[i - 1]));
+			buf_[i - 1].~T();
+		}
+		length_ += 1;
+		new (buf_ + index) T(move(value));
+	}
+	return index;
+}
+
+
+template<typename T>
+void Array<T>::remove(int index) {
+	buf_[index].~T();
+	for (int i = index; i < length_ - 1; i++) {
+		new (buf_ + i) T(move(buf_[i + 1]));
+		buf_[i + 1].~T();
+	}
+	length_ -= 1;
 }
 template<typename T>
 int Array<T>::size() const {
