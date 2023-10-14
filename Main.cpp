@@ -1,6 +1,7 @@
 #include "DynamicArray.h"
 #include <iostream>
 
+
 int main()
 {
     //int t;
@@ -10,7 +11,6 @@ int main()
     for (int i = 0; i < a.size(); ++i)
         a[i] *= 2;
     a.remove(3);
-
 
     auto it = a.iterator();
     std::cout << it.get() << std::endl;

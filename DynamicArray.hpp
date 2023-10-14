@@ -102,8 +102,6 @@ int Array<T>::insert(int index, T&& value) {
 	}
 	return index;
 }
-
-
 template<typename T>
 void Array<T>::remove(int index) {
 	buf_[index].~T();
@@ -117,14 +115,7 @@ template<typename T>
 int Array<T>::size() const {
 	return length_;
 }
-template<typename T>
-typename Array<T>::Iterator Array<T>::iterator() {
-	return *(new Iterator{ this, 1 });
-}
-template<typename T>
-typename Array<T>::Iterator Array<T>::reverseIterator() {
-	return *(new Iterator{ this, -1 });
-}
+
 
 template<typename T>
 const T& Array<T>::operator[](int index) const {
@@ -133,6 +124,16 @@ const T& Array<T>::operator[](int index) const {
 template<typename T>
 T& Array<T>::operator[](int index) {
 	return buf_[index];
+}
+
+
+template<typename T>
+typename Array<T>::Iterator Array<T>::iterator() {
+	return *(new Iterator{ this, 1 });
+}
+template<typename T>
+typename Array<T>::Iterator Array<T>::reverseIterator() {
+	return *(new Iterator{ this, -1 });
 }
 
 
