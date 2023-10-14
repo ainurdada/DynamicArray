@@ -34,7 +34,6 @@ public:
 	int size() const;
 	Iterator iterator();
 	Iterator reverseIterator();
-	//ConstIterarto iterator() const;
 
 	const T& operator[](int index) const;
 	T& operator[](int index);
