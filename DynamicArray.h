@@ -6,11 +6,7 @@ class Array final {
 public:
 	class Iterator {
 	public:
-		Iterator(Array<T>* arr, int delta)
-			: arr_(arr),
-			index_(0),
-			delta_(delta)
-		{};
+		Iterator(Array<T>* arr, int delta);
 
 		const T& get() const;
 		void set(const T& value);

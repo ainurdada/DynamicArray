@@ -136,7 +136,19 @@ typename Array<T>::Iterator Array<T>::reverseIterator() {
 	return *(new Iterator{ this, -1 });
 }
 
-
+template<typename T>
+Array<T>::Iterator::Iterator(Array<T>* arr, int delta)
+	: arr_(arr),
+	delta_(delta)
+{
+	if (delta < 0) {
+		index_ = arr->size() - 1;
+	}
+	else
+	{
+		index_ = 0;
+	}
+};
 template<typename T>
 const T& Array<T>::Iterator::get() const {
 	return arr_->buf_[index_];
