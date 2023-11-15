@@ -30,6 +30,15 @@ Array<T>::Array(Array&& other) {
 	other.capacity_ = 0;
 }
 template<typename T>
+Array<T>::Array(const Array& other) {
+	length_ = other.length_;
+	capacity_ = other.capacity_;
+	buf_ = (T*)malloc(capacity_ * sizeof(T));
+	for (int i = 0; i < length_; i++) {
+		new (buf_ + i) T(other.buf_[i]);
+	}
+}
+template<typename T>
 Array<T>::~Array() {
 	reset();
 }
@@ -143,13 +152,16 @@ Array<T>& Array<T>::operator=(const Array<T>& other) {
 	if (this != &other) {
 		reset();
 		length_ = other.length_;
+		capacity_ = other.capacity_;
 		buf_ = (T*)malloc(capacity_ * sizeof(T));
-		copy(other.buf_, other.buf_ + other.length_, buf_);
+		for (int i = 0; i < length_; i++) {
+			new (buf_ + i) T(other.buf_[i]);
+		}
 	}
 	return *this;
 }
 template<typename T>
-Array<T>& Array<T>::operator=(const Array<T>&& other) {
+Array<T>& Array<T>::operator=(Array<T>&& other) {
 	if (this != &other) {
 		reset();
 		length_ = other.length_;

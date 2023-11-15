@@ -31,6 +31,7 @@ public:
 
 	Array();
 	explicit Array(int capacity);
+	Array(const Array& other);
 	Array(Array&& other);
 	~Array();
 
@@ -49,7 +50,7 @@ public:
 	T& operator[](int index);
 
 	Array<T>& operator=(const Array<T>& other);
-	Array<T>& operator=(const Array<T>&& other);
+	Array<T>& operator=(Array<T>&& other);
 private:
 	void reset();
 
