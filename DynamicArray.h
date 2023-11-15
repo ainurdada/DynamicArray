@@ -4,7 +4,7 @@
 template<typename T>
 class Array final {
 public:
-	class Iterator {
+	class Iterator final {
 	public:
 		Iterator(Array<T>* arr, int delta);
 
@@ -18,8 +18,20 @@ public:
 		int delta_;
 	};
 
+	class ConstIterator final {
+	public:
+		ConstIterator(Array<T>* arr, int delta);
+
+		const T& get() const;
+		void next();
+		bool hasNext() const;
+	private:
+		Iterator it;
+	};
+
 	Array();
 	explicit Array(int capacity);
+	Array(Array&& other);
 	~Array();
 
 	int insert(const T& value);
@@ -30,10 +42,17 @@ public:
 	int size() const;
 	Iterator iterator();
 	Iterator reverseIterator();
+	ConstIterator iterator() const;
+	ConstIterator reverseIterator() const;
 
 	const T& operator[](int index) const;
 	T& operator[](int index);
+
+	Array<T>& operator=(const Array<T>& other);
+	Array<T>& operator=(const Array<T>&& other);
 private:
+	void reset();
+
 	T* buf_;
 	int capacity_;
 	int length_;

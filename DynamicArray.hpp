@@ -20,13 +20,26 @@ Array<T>::Array(int capacity) {
 	buf_ = (T*)malloc(capacity_ * sizeof(T));
 }
 template<typename T>
+Array<T>::Array(Array&& other) {
+	length_ = other.length_;
+	capacity_ = other.capacity_;
+	buf_ = other.buf_;
+
+	other.buf_ = nullptr;
+	other.length_ = 0;
+	other.capacity_ = 0;
+}
+template<typename T>
 Array<T>::~Array() {
+	reset();
+}
+template<typename T>
+void Array<T>::reset() {
 	for (int i = 0; i < length_; i++) {
 		buf_[i].~T();
 	}
 	free(buf_);
 }
-
 
 template<typename T>
 int Array<T>::insert(const T& value) {
@@ -125,6 +138,30 @@ template<typename T>
 T& Array<T>::operator[](int index) {
 	return buf_[index];
 }
+template<typename T>
+Array<T>& Array<T>::operator=(const Array<T>& other) {
+	if (this != &other) {
+		reset();
+		length_ = other.length_;
+		buf_ = (T*)malloc(capacity_ * sizeof(T));
+		copy(other.buf_, other.buf_ + other.length_, buf_);
+	}
+	return *this;
+}
+template<typename T>
+Array<T>& Array<T>::operator=(const Array<T>&& other) {
+	if (this != &other) {
+		reset();
+		length_ = other.length_;
+		capacity_ = other.capacity_;
+		buf_ = other.buf_;
+
+		other.buf_ = nullptr;
+		other.length_ = 0;
+		other.capacity_ = 0;
+	}
+	return *this;
+}
 
 
 template<typename T>
@@ -165,6 +202,33 @@ template<typename T>
 bool Array<T>::Iterator::hasNext() const {
 	if (index_ + delta_ < arr_->length_ && index_ + delta_ >= 0) return true;
 	else return false;
+}
+
+template<typename T>
+typename Array<T>::ConstIterator Array<T>::iterator() const {
+	return *(new ConstIterator{ this, 1 });
+}
+template<typename T>
+typename Array<T>::ConstIterator Array<T>::reverseIterator() const {
+	return *(new ConstIterator{ this, -1 });
+}
+
+template<typename T>
+Array<T>::ConstIterator::ConstIterator(Array<T>* arr, int delta)
+{
+	it = iterator(arr, delta);
+};
+template<typename T>
+const T& Array<T>::ConstIterator::get() const {
+	return it.get();
+}
+template<typename T>
+void Array<T>::ConstIterator::next() {
+	it.next();
+}
+template<typename T>
+bool Array<T>::ConstIterator::hasNext() const {
+	return it.hasNext();
 }
 
 #endif
