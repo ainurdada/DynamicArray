@@ -8,7 +8,7 @@ public:
 	public:
 		Iterator(Array<T>* arr, int delta);
 
-		const T& get() const;
+		T& get() const;
 		void set(const T& value);
 		void next();
 		bool hasNext() const;

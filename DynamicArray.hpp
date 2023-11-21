@@ -89,7 +89,7 @@ int Array<T>::insert(int index, const T& value) {
 }
 template<typename T>
 int Array<T>::insert(T&& value) {
-	return insert(length_, value);
+	return insert(length_, move(value));
 }
 template<typename T>
 int Array<T>::insert(int index, T&& value) {
@@ -199,7 +199,7 @@ Array<T>::Iterator::Iterator(Array<T>* arr, int delta)
 	}
 };
 template<typename T>
-const T& Array<T>::Iterator::get() const {
+T& Array<T>::Iterator::get() const {
 	return arr_->buf_[index_];
 }
 template<typename T>
